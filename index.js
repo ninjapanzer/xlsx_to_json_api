@@ -2,7 +2,7 @@ var node_xj = require("xlsx-to-json");
 var fs = require('fs');
 
 module.exports = function(app, config) {
-  var dataDir = './'+config.dataDir;
+  var dataDir = config.dataDir;
 
   if (!fs.existsSync(dataDir)){
       fs.mkdirSync(dataDir);
@@ -34,7 +34,7 @@ module.exports = function(app, config) {
 
   var setDataRoute = function(sheet){
     app.get('/'+sheet, function(req, res) {
-      data = require(__dirname+'/data/'+sheet);
+      data = require(dataDir+'/'+sheet);
       res.send(data);
     });
   }
