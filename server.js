@@ -29,8 +29,9 @@ var sheets = [
 xlsx_api(app, {
   sheets: sheets,
   xlsxSource: 'deathDatasets.xlsx',
-  dataDir: 'data'
-});
+  dataDir: 'data',
+  mountPoint: 'data'
+}).register();
 
 var server = app.listen(3000, function () {
   var host = server.address().address;
