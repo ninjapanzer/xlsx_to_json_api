@@ -15,6 +15,6 @@
   "dependencies": {
     "express": "^4.13.0",
     "jszip": "^2.5.0",
-    "xlsx-to-json": "git@github.com:ninjapanzer/node-xlsx-json.git#pks/allow_sheet_to_be_defined_in_config"
+    "xlsx-to-json": "https://github.com/ninjapanzer/node-xlsx-json.git#pks/allow_sheet_to_be_defined_in_config"
   }
 }
