@@ -1,19 +1,20 @@
 {
   "name": "xls_to_json_api",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "babel": "^5.6.6"
+    "mocha": "^2.2.5",
+    "mock-express": "0.0.4"
   },
   "dependencies": {
     "express": "^4.13.0",
     "jszip": "^2.5.0",
-    "xlsx-to-json": "git@github.com:ninjapanzer/node-xlsx-json.git#pks/allow_sheet_to_be_defined_in_config"
+    "xlsx-to-json": "https://github.com/ninjapanzer/node-xlsx-json.git#pks/allow_sheet_to_be_defined_in_config"
   }
 }
