@@ -4,13 +4,16 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "mocha"
+    "test": "mocha",
+    "testing": "mocha --watch"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "cp": "^0.2.0",
     "mocha": "^2.2.5",
-    "mock-express": "0.0.4"
+    "mock-express": "0.0.4",
+    "mv": "^2.1.1"
   },
   "dependencies": {
     "express": "^4.13.0",
