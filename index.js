@@ -14,6 +14,7 @@ var libModule = function(app, config){
     this.app = app
     this.dataDir = './'+this.config.dataDir;
     this.xlsxSource = this.dataDir+'/'+this.config.xlsxSource;
+    this.endpointVersionFile = this.dataDir+'/endpointVersions';
     this.sheets = this.config.sheets;
     this.mountPoint = this.config.mountPoint || 'data';
   }.apply(this);
@@ -57,6 +58,15 @@ var libModule = function(app, config){
     });
   };
 
+  this.hashDataFile = function(file){
+    return new Promise(function(resolve, reject){
+      fs.readFile(file,function(err, data){
+        if(err){ reject(err) }
+        resolve( { version: require('crypto').createHash('sha1').update(data).digest('hex') } );
+      });
+    });
+  };
+
   this.expandSpreadsheet = function(){
     var that = this;
     return new Promise(function(resolve){
@@ -86,6 +96,7 @@ var libModule = function(app, config){
   };
 
   this.clearData = function(){
+    fs.unlinkSync(this.endpointVersionFile+'.json');
     for(var i=0; i<this.sheets.length; i++){
       var sheet = this.sheets[i];
       fs.unlinkSync(this.dataDir+'/'+sheet+'.json');
@@ -94,14 +105,33 @@ var libModule = function(app, config){
 
   this.register = function(){
     var that = this;
+    var endpointVersions = { version: '' };
+    var endpointFile = this.endpointVersionFile;
     return new Promise(function(resolve){
       if (!fs.existsSync(that.dataDir)){
         fs.mkdirSync(that.dataDir);
       }
-      that.expandSpreadsheet().then(function(){
-        that.registerMountPoint();
-        resolve(that);
-      });
+      if (fs.existsSync(endpointFile+'.json')){
+        endpointVersions = require(endpointFile);
+      }
+      that.hashDataFile(that.xlsxSource).then(function(fileSHA){
+        fs.writeFile(endpointFile+'.json', JSON.stringify( fileSHA ), function (err) {
+          if (err) { reject(err) }
+        });
+        if (endpointVersions.version !== fileSHA.version) {
+          that.expandSpreadsheet().then(function(){
+            that.registerMountPoint();
+            resolve(that);
+          });
+        } else {
+          for(var i=0; i<that.sheets.length; i++){
+            var sheet = that.sheets[i];
+            that.setDataRoute(sheet);
+          }
+          that.registerMountPoint();
+          resolve(that);
+        }
+      })
     });
   };
 }

@@ -54,6 +54,82 @@ describe('xlsx_to_json_lib', function() {
     });
   });
 
+  describe('reloading expanded data',function(){
+    var registration = {};
+    var theData = "";
+    var req = function(){};
+    var res = { send: function(data){ theData = data; } }
+    beforeEach(function(){
+      var app = MockExpress();
+      testLib = lib(app, {
+        sheets: ['buffy'],
+        xlsxSource: 'deathDatasets.xlsx',
+        dataDir: 'test/data',
+        mountPoint: 'butt'
+      });
+      registration = testLib.register();
+    });
+
+    describe('does not reprocess files if they are the same version', function(){
+      after(function(){
+        testLib.clearData();
+      });
+
+      it('if server is started twice', function(done){
+        var buffyFileModTime;
+        registration.then(function(lib){
+          var jsonFile = lib.dataDir+'/buffy.json'
+          fs.stat(jsonFile, function(err, stats){
+            buffyFileModTime = stats.mtime.getTime();
+            testLib.register().then(function(){
+              fs.stat(jsonFile, function(err, stats){
+                assert.equal(stats.mtime.getTime(), buffyFileModTime);
+                done()
+              });
+            });
+          });
+        });
+      });
+
+      it('still loads data from endpoint', function(done){
+        registration.then(function(lib){
+          var jsonFile = lib.dataDir+'/buffy.json'
+          lib.app.invoke('get', '/butt/buffy', req, res);
+          assert.equal(typeof(theData), 'object');
+          assert.equal(Array.isArray(theData), true);
+          assert.equal(theData[0].episode, 6)
+          return done();
+        }, stdErr);
+      });
+    });
+
+    describe('should create files', function(){
+      afterEach(function(){
+        testLib.clearData();
+      });
+
+      it('when first loaded', function(done){
+        registration.then(function(lib){
+          var jsonFile = lib.dataDir+'/buffy.json'
+          fs.exists(jsonFile, function(exists){
+            assert.equal(exists, true);
+            done();
+          });
+        });
+      });
+
+      it('creates version file', function(done){
+        registration.then(function(lib){
+          var versionFile = lib.dataDir+'/endpointVersions.json'
+          fs.exists(versionFile, function(exists){
+            assert.equal(exists, true);
+            done();
+          });
+        });
+      });
+    });
+  });
+
   describe('applying expands data',function(){
     var app = {};
     var theData = "";
